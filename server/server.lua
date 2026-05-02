@@ -475,9 +475,9 @@ RegisterNetEvent('lxr-spirits:server:completeRitual', function(ritualType, locat
         elseif Config.General.witnessBroadcast then
             local srcCoords = GetEntityCoords(GetPlayerPed(src))
             for _, pid in ipairs(GetPlayers()) do
-                local pid = tonumber(pid)
-                if pid ~= src then
-                    TriggerClientEvent('lxr-spirits:client:witnessPulse', pid, srcCoords, c.name, spirit.label)
+                local playerId = tonumber(pid)
+                if playerId ~= src then
+                    TriggerClientEvent('lxr-spirits:client:witnessPulse', playerId, srcCoords, c.name, spirit.label)
                 end
             end
         end

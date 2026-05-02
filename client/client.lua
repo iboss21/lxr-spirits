@@ -303,13 +303,15 @@ local function startAnimChain(ped, phases)
         local idx = 1
         while ritualActive do
             local phase = phases[idx]
+            local phaseDuration = phase and phase.durationMs or 5000
             if phase and phase.scenario then
-                TaskStartScenarioInPlace(ped, joaat(phase.scenario), (phase.durationMs or 5000) + 300, true, false, false, false)
+                -- Add 300ms grace so the scenario has time to start before we begin tracking duration
+                TaskStartScenarioInPlace(ped, joaat(phase.scenario), phaseDuration + 300, true, false, false, false)
             end
-            Wait(phase and phase.durationMs or 5000)
+            Wait(phaseDuration)
             if not ritualActive then break end
             ClearPedTasksImmediately(ped)
-            Wait(120)
+            Wait(120) -- brief pause between phases to let the engine clear the previous task
             idx = idx + 1
             if idx > #phases then idx = 1 end
         end
