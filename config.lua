@@ -196,7 +196,25 @@ Config.Items = {
     ramHorn = 'provision_ram_horn',
     buckAntlers = 'provision_buck_antlers',
     beaverTail = 'provision_beaver_tail',
-    beaverScentGland = 'provision_beaver_scentgland'
+    beaverScentGland = 'provision_beaver_scentgland',
+    -- Legendary animal offerings (obtained by hunting legendary animals)
+    legendaryWolfHeart      = 'legendary_wolf_heart',
+    legendaryWolfFang       = 'legendary_wolf_fang',
+    legendaryEagleHeart     = 'legendary_eagle_heart',
+    legendaryEagleFeather   = 'legendary_eagle_feather_prime',
+    legendaryBearHeart      = 'legendary_bear_heart',
+    legendaryBearClaw       = 'legendary_bear_claw_prime',
+    legendaryCougarHeart    = 'legendary_cougar_heart',
+    legendaryCougarFang     = 'legendary_cougar_fang',
+    legendaryBisonHeart     = 'legendary_bison_heart',
+    legendaryBisonHorn      = 'legendary_bison_horn',
+    legendaryElkHeart       = 'legendary_elk_heart',
+    legendaryElkAntler      = 'legendary_elk_antler_prime',
+    legendaryCoyoteHeart    = 'legendary_coyote_heart',
+    legendaryFoxTail        = 'legendary_fox_tail_prime',
+    legendaryOwlFeather     = 'legendary_owl_feather_prime',
+    legendaryDeerHeart      = 'legendary_deer_heart',
+    legendaryRavenWing      = 'legendary_raven_wing'
 }
 
 Config.Offerings = {
@@ -234,16 +252,83 @@ Config.Offerings = {
 }
 
 Config.SpiritOfferings = {
-    wolf   = { { item = 'generic_animal_tooth', amount = 1, label = 'Animal Tooth' }, { item = 'generic_animal_heart', amount = 1, label = 'Animal Heart' }, { item = 'ritual_sage_bundle', amount = 1, label = 'Ritual Sage Bundle' } },
-    eagle  = { { item = 'provision_bird_feather_flight', amount = 1, label = 'Bird Feather Flight' }, { item = 'ritual_sage_bundle', amount = 1, label = 'Ritual Sage Bundle' } },
-    bear   = { { item = 'provision_bear_claw', amount = 1, label = 'Bear Claw' }, { item = 'provision_bear_heart', amount = 1, label = 'Bear Heart' }, { item = 'provision_meat_big_game', amount = 1, label = 'Big Game Meat' } },
-    cougar = { { item = 'provision_cougar_claw', amount = 1, label = 'Cougar Claw' }, { item = 'generic_animal_tooth', amount = 1, label = 'Animal Tooth' } },
-    fox    = { { item = 'provision_fox_claw', amount = 1, label = 'Fox Claw' }, { item = 'provision_meat_stringy', amount = 1, label = 'Stringy Meat' } },
-    raven  = { { item = 'provision_raven_claw', amount = 1, label = 'Raven Claw' }, { item = 'provision_bird_feather_flight', amount = 1, label = 'Bird Feather Flight' } },
-    elk    = { { item = 'provision_buck_antlers', amount = 1, label = 'Buck Antlers' }, { item = 'provision_meat_mature_venison', amount = 1, label = 'Mature Venison Meat' } },
-    bison  = { { item = 'provision_meat_big_game', amount = 1, label = 'Big Game Meat' }, { item = 'generic_animal_heart', amount = 1, label = 'Animal Heart' } },
-    coyote = { { item = 'generic_animal_tooth', amount = 1, label = 'Animal Tooth' }, { item = 'provision_meat_stringy', amount = 1, label = 'Stringy Meat' } },
-    owl    = { { item = 'provision_bird_feather_flight', amount = 1, label = 'Bird Feather Flight' }, { item = 'dream_root', amount = 1, label = 'Dream Root' } }
+    -- Each list is checked in order (first_available mode). Legendary items come last
+    -- so they act as a premium alternative when the player has hunted a legendary animal.
+    wolf   = {
+        { item = 'generic_animal_tooth',          amount = 1, label = 'Animal Tooth' },
+        { item = 'generic_animal_heart',          amount = 1, label = 'Animal Heart' },
+        { item = 'ritual_sage_bundle',            amount = 1, label = 'Ritual Sage Bundle' },
+        { item = 'legendary_wolf_heart',          amount = 1, label = 'Legendary Wolf Heart' },
+        { item = 'legendary_wolf_fang',           amount = 1, label = 'Legendary Wolf Fang' }
+    },
+    eagle  = {
+        { item = 'provision_bird_feather_flight', amount = 1, label = 'Bird Feather Flight' },
+        { item = 'ritual_sage_bundle',            amount = 1, label = 'Ritual Sage Bundle' },
+        { item = 'legendary_eagle_heart',         amount = 1, label = 'Legendary Eagle Heart' },
+        { item = 'legendary_eagle_feather_prime', amount = 1, label = 'Legendary Eagle Feather' }
+    },
+    bear   = {
+        { item = 'provision_bear_claw',           amount = 1, label = 'Bear Claw' },
+        { item = 'provision_bear_heart',          amount = 1, label = 'Bear Heart' },
+        { item = 'provision_meat_big_game',       amount = 1, label = 'Big Game Meat' },
+        { item = 'legendary_bear_heart',          amount = 1, label = 'Legendary Bear Heart' },
+        { item = 'legendary_bear_claw_prime',     amount = 1, label = 'Legendary Bear Claw' }
+    },
+    cougar = {
+        { item = 'provision_cougar_claw',         amount = 1, label = 'Cougar Claw' },
+        { item = 'generic_animal_tooth',          amount = 1, label = 'Animal Tooth' },
+        { item = 'legendary_cougar_heart',        amount = 1, label = 'Legendary Cougar Heart' },
+        { item = 'legendary_cougar_fang',         amount = 1, label = 'Legendary Cougar Fang' }
+    },
+    fox    = {
+        { item = 'provision_fox_claw',            amount = 1, label = 'Fox Claw' },
+        { item = 'provision_meat_stringy',        amount = 1, label = 'Stringy Meat' },
+        { item = 'legendary_fox_tail_prime',      amount = 1, label = 'Legendary Fox Tail' }
+    },
+    raven  = {
+        { item = 'provision_raven_claw',          amount = 1, label = 'Raven Claw' },
+        { item = 'provision_bird_feather_flight', amount = 1, label = 'Bird Feather Flight' },
+        { item = 'legendary_raven_wing',          amount = 1, label = 'Legendary Raven Wing' }
+    },
+    elk    = {
+        { item = 'provision_buck_antlers',        amount = 1, label = 'Buck Antlers' },
+        { item = 'provision_meat_mature_venison', amount = 1, label = 'Mature Venison Meat' },
+        { item = 'legendary_elk_heart',           amount = 1, label = 'Legendary Elk Heart' },
+        { item = 'legendary_elk_antler_prime',    amount = 1, label = 'Legendary Elk Antler' }
+    },
+    bison  = {
+        { item = 'provision_meat_big_game',       amount = 1, label = 'Big Game Meat' },
+        { item = 'generic_animal_heart',          amount = 1, label = 'Animal Heart' },
+        { item = 'legendary_bison_heart',         amount = 1, label = 'Legendary Bison Heart' },
+        { item = 'legendary_bison_horn',          amount = 1, label = 'Legendary Bison Horn' }
+    },
+    coyote = {
+        { item = 'generic_animal_tooth',          amount = 1, label = 'Animal Tooth' },
+        { item = 'provision_meat_stringy',        amount = 1, label = 'Stringy Meat' },
+        { item = 'legendary_coyote_heart',        amount = 1, label = 'Legendary Coyote Heart' }
+    },
+    owl    = {
+        { item = 'provision_bird_feather_flight', amount = 1, label = 'Bird Feather Flight' },
+        { item = 'dream_root',                    amount = 1, label = 'Dream Root' },
+        { item = 'legendary_owl_feather_prime',   amount = 1, label = 'Legendary Owl Feather' }
+    },
+    white_deer = {
+        { item = 'provision_meat_mature_venison', amount = 1, label = 'Mature Venison Meat' },
+        { item = 'moon_water',                    amount = 1, label = 'Moon Water' },
+        { item = 'legendary_deer_heart',          amount = 1, label = 'Legendary Deer Heart' }
+    },
+    great_bison = {
+        { item = 'provision_meat_big_game',       amount = 1, label = 'Big Game Meat' },
+        { item = 'generic_animal_heart',          amount = 1, label = 'Animal Heart' },
+        { item = 'legendary_bison_heart',         amount = 1, label = 'Legendary Bison Heart' },
+        { item = 'legendary_bison_horn',          amount = 1, label = 'Legendary Bison Horn' }
+    },
+    omen_wolf = {
+        { item = 'generic_animal_tooth',          amount = 1, label = 'Animal Tooth' },
+        { item = 'generic_animal_heart',          amount = 1, label = 'Animal Heart' },
+        { item = 'spirit_ash',                    amount = 1, label = 'Spirit Ash' },
+        { item = 'legendary_wolf_fang',           amount = 1, label = 'Legendary Wolf Fang' }
+    }
 }
 
 Config.RitualTypes = {
@@ -344,6 +429,42 @@ Config.RitualProps = {
     }
 }
 
+-- Each ritual type plays these animation phases in order, then loops from the beginning
+-- until the ritual completes. Add/remove/reorder phases freely.
+Config.RitualAnimations = {
+    default = {
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 5500 },
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 7000 },
+    },
+    initiation = {
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 5000 },
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 10000 },
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 5000 },
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 12000 },
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 5000 },
+    },
+    vision = {
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 9000 },
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 8000 },
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 9000 },
+    },
+    cleansing = {
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 11000 },
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 10000 },
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 9000 },
+    },
+    bond = {
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 6000 },
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 12000 },
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 8000 },
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 10000 },
+    },
+    omen = {
+        { scenario = 'WORLD_HUMAN_PRAY',            durationMs = 12000 },
+        { scenario = 'WORLD_HUMAN_CROUCH_INSPECT', durationMs = 10000 },
+    }
+}
+
 Config.Integrations = {
     lxr_reputation = { enabled = false, event = 'lxr-reputation:server:addReputation', amount = 2 },
     lxr_skills = { enabled = false, event = 'lxr-skills:server:addXP', skill = 'spirituality', amount = 10 },
@@ -359,6 +480,24 @@ Config.Omens = {
     broken_ring = { label = 'Broken Ring', tone = 'warning', text = 'A bond may break unless guarded.', weight = 8 }
 }
 
+-- Spirit names given to the player upon bonding. One is chosen at random from the pool.
+-- Format is intentionally evocative — short, mythic, hunt-earned titles.
+Config.SpiritNames = {
+    wolf        = { 'Eyes of the Wolf', 'Moon Walker', 'Iron Fangs', 'Pack Blood', 'Howling Shadow', 'Spirit of the Hunt', 'Moonlit Hunter', 'Night Howl' },
+    eagle       = { 'Sky Watcher', 'Storm Wing', 'Piercing Eye', 'Cloud Dancer', 'Sun Hunter', 'Wind Rider', 'High Feather', 'Thunder Talon' },
+    bear        = { 'Iron Hide', 'Ancient Paw', 'Stone Heart', 'Forest Warden', 'Thunder Walk', 'Sacred Claw', 'Old Bear', 'Earth Shaker' },
+    cougar      = { 'Shadow Step', 'Silent Fang', 'Pale Strike', 'Night Stalker', 'Ghost Claw', 'Dusk Hunter', 'Swift Shadow', 'Bone Cutter' },
+    fox         = { 'Ember Tongue', 'Red Whisper', 'Cunning Wind', 'Quick Mind', 'Dust Walker', 'Trickster Flame', 'Clever Paw', 'Fire Runner' },
+    raven       = { 'Death Tongue', 'Black Wing', 'Memory Keeper', 'Omen Caller', 'Dark Prophet', 'Bone Seer', 'Silent Omen', 'Raven Blood' },
+    elk         = { 'Crown Wander', 'Pine Blood', 'Noble Step', 'Long Road', 'Old Antler', 'Silent Meadow', 'Forest King', 'Proud Rack' },
+    bison       = { 'Thunder Plain', 'Earth Shaker', 'Storm Runner', 'Ancient Ground', 'Dust Thunder', 'Iron Herd', 'Sacred Plain', 'Old Bull' },
+    coyote      = { 'Laughing Dust', 'Wild Fortune', 'Desert Runner', 'Sand Trickster', 'Broken Trail', 'Red Coyote', 'Hungry Howl', 'Ragged Wind' },
+    owl         = { 'Night Judge', 'Moon Eyes', 'Silent Wing', 'Dark Wisdom', 'Hollow Call', 'Ancient Stare', 'Feather Dark', 'Quiet Oracle' },
+    white_deer  = { 'Pale Path', 'Mist Walker', 'Ghost Deer', 'Sacred Trace', 'Pure Step', 'Light Messenger', 'White Trail', 'Soft Hoof' },
+    great_bison = { 'Ancient Thunder', 'Earth Burden', 'Stone Herd', 'Timeless Ground', 'Old Thunder', 'Sacred Plain', 'Heavy Step', 'Iron Wall' },
+    omen_wolf   = { 'Moon Scar', 'Exile Pack', 'Haunted Fang', 'Old Wound', 'Shadow Howl', 'Scarred Moon', 'Marked Fang', 'Lost Pack' }
+}
+
 Config.SpiritAnimals = {
     wolf = { label = 'Wolf', model = 'a_c_wolf', icon = '🐺', element = 'Moon', temperament = 'Loyal', weight = 28, title = 'The Pack-Bound Hunter', meaning = 'Loyalty, instinct, leadership, survival, and memory of the pack.', weakness = 'Isolation and betrayal.', bondBuff = 'Nearby allies become part of your story.', offerings = { 'generic_animal_tooth', 'generic_animal_heart', 'ritual_sage_bundle' }, omens = { 'moon_blessing', 'cold_wind' } },
     eagle = { label = 'Eagle', model = 'a_c_eagle_01', icon = '🦅', element = 'Sky', temperament = 'Judging', weight = 18, title = 'The Sky Watcher', meaning = 'Vision, distance, judgment, freedom, and the will to rise.', weakness = 'Pride and emotional distance.', bondBuff = 'Your path is clearest from high ground.', offerings = { 'provision_bird_feather_flight', 'ritual_sage_bundle' }, omens = { 'white_feather', 'moon_blessing' } },
@@ -371,7 +510,7 @@ Config.SpiritAnimals = {
     coyote = { label = 'Coyote', model = 'a_c_coyote_01', icon = '🌵', element = 'Dust', temperament = 'Restless', weight = 12, title = 'The Laughing Dust', meaning = 'Trickery, survival, movement, hunger, and wild fortune.', weakness = 'Greed and carelessness.', bondBuff = 'Trouble finds you, but so does escape.', offerings = { 'dream_root' }, omens = { 'red_ember', 'broken_ring' } },
     owl = { label = 'Owl', model = 'a_c_owl_01', icon = '🦉', element = 'Night', temperament = 'Silent', weight = 9, title = 'The Night Judge', meaning = 'Wisdom, secrecy, patience, and judgment in darkness.', weakness = 'Cold detachment.', bondBuff = 'Night reveals what daylight conceals.', offerings = { 'provision_bird_feather_flight', 'dream_root' }, omens = { 'black_smoke', 'white_feather' } },
     white_deer = { label = 'White Deer', model = 'a_c_deer_01', icon = '🦌', element = 'Mist', temperament = 'Pure', weight = 7, title = 'The Pale Messenger', meaning = 'Mercy, rebirth, warning, innocence, and a path through grief.', weakness = 'Fragility and fear of corruption.', bondBuff = 'The unseen road opens when the heart is clean.', offerings = { 'provision_meat_mature_venison', 'moon_water', 'ritual_sage_bundle' }, omens = { 'white_feather', 'moon_blessing' } },
-    great_bison = { label = 'Great Bison', model = 'a_c_buffalo_01', icon = '🐃', element = 'Earth', temperament = 'Ancient', weight = 6, title = 'The Ancient Thunder', meaning = 'Endurance, tribe, land, burden, and the strength to remain.', weakness = 'Stubbornness and slow anger.', bondBuff = 'The land remembers those who carry its weight.', offerings = { 'provision_meat_big_game', 'generic_animal_heart', 'ritual_bone_charm' }, omens = { 'red_sky', 'broken_ring' } },
+    great_bison = { label = 'Great Bison', model = 'a_c_buffalo_01', icon = '🐃', element = 'Earth', temperament = 'Ancient', weight = 6, title = 'The Ancient Thunder', meaning = 'Endurance, tribe, land, burden, and the strength to remain.', weakness = 'Stubbornness and slow anger.', bondBuff = 'The land remembers those who carry its weight.', offerings = { 'provision_meat_big_game', 'generic_animal_heart', 'ritual_bone_charm' }, omens = { 'red_ember', 'broken_ring' } },
     omen_wolf = { label = 'Omen Wolf', model = 'a_c_wolf', icon = '🐺', element = 'Moon', temperament = 'Haunting', weight = 5, title = 'The Moon-Scarred Omen', meaning = 'Prophecy, loyalty, threat, exile, and the call of the pack.', weakness = 'Possession by old wounds.', bondBuff = 'The pack hears you when the night is silent.', offerings = { 'generic_animal_tooth', 'generic_animal_heart', 'spirit_ash' }, omens = { 'black_smoke', 'moon_blessing' } }
 }
 

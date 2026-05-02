@@ -84,6 +84,7 @@ local encounter = {
     omenEntity = nil,
     spirit = nil,
     spiritKey = nil,
+    spiritName = nil,
     location = nil,
     ritualType = nil,
     bond = 0,
@@ -181,6 +182,7 @@ local function resetEncounter()
     encounter.omenEntity = nil
     encounter.spirit = nil
     encounter.spiritKey = nil
+    encounter.spiritName = nil
     encounter.location = nil
     encounter.ritualType = nil
     encounter.bond = 0
@@ -285,12 +287,35 @@ end
 
 local function hardCleanup()
     ritualActive = false
-    ClearPedTasks(PlayerPedId())
+    ClearPedTasksImmediately(PlayerPedId())
     FreezeEntityPosition(PlayerPedId(), false)
     stopVisionFx()
     cleanupEntities()
     resetEncounter()
     closeNui()
+end
+
+-- Runs animation phases in a loop until ritualActive becomes false.
+-- Phases are played in order then restart from the beginning.
+local function startAnimChain(ped, phases)
+    if not phases or #phases == 0 then return end
+    CreateThread(function()
+        local idx = 1
+        while ritualActive do
+            local phase = phases[idx]
+            local phaseDuration = phase and phase.durationMs or 5000
+            if phase and phase.scenario then
+                -- Add 300ms grace so the scenario has time to start before we begin tracking duration
+                TaskStartScenarioInPlace(ped, joaat(phase.scenario), phaseDuration + 300, true, false, false, false)
+            end
+            Wait(phaseDuration)
+            if not ritualActive then break end
+            ClearPedTasksImmediately(ped)
+            Wait(120) -- brief pause between phases to let the engine clear the previous task
+            idx = idx + 1
+            if idx > #phases then idx = 1 end
+        end
+    end)
 end
 
 local function cancelRitual(reason)
@@ -333,6 +358,7 @@ local function finishEncounter()
     nui('reveal', {
         key = encounter.spiritKey,
         spirit = encounter.spirit,
+        spirit_name = encounter.spiritName,
         location = encounter.location,
         omenKey = encounter.omenKey,
         omen = encounter.omen,
@@ -340,6 +366,9 @@ local function finishEncounter()
         bond = encounter.bond
     })
     if Config.NUI and Config.NUI.focusOnReveal then setNuiCursor(true) end
+    if encounter.spiritName then
+        notify(loc('spirit_name_revealed', { name = encounter.spiritName }) or ('The spirits have named you: ' .. encounter.spiritName), 'success')
+    end
     TriggerServerEvent('lxr-spirits:server:spiritConnected', encounter.spiritKey, encounter.ritualType)
     SetTimeout((Config.Encounter and Config.Encounter.finalRevealMs) or 12000, function()
         closeNui()
@@ -348,10 +377,11 @@ local function finishEncounter()
     end)
 end
 
-local function beginSpiritEncounter(spiritKey, spirit, locData, omenKey, omen, ritualType, bond)
+local function beginSpiritEncounter(spiritKey, spirit, locData, omenKey, omen, ritualType, bond, spiritName)
     if not Config.Cinematic.spawnSpiritPed then
-        nui('reveal', { key = spiritKey, spirit = spirit, location = locData, omenKey = omenKey, omen = omen, ritualType = ritualType, bond = bond })
+        nui('reveal', { key = spiritKey, spirit = spirit, spirit_name = spiritName, location = locData, omenKey = omenKey, omen = omen, ritualType = ritualType, bond = bond })
         if Config.NUI and Config.NUI.focusOnReveal then setNuiCursor(true) end
+        if spiritName then notify(loc('spirit_name_revealed', { name = spiritName }) or ('The spirits have named you: ' .. spiritName), 'success') end
         return
     end
 
@@ -364,6 +394,7 @@ local function beginSpiritEncounter(spiritKey, spirit, locData, omenKey, omen, r
     encounter.stage = 'omen'
     encounter.spirit = spirit
     encounter.spiritKey = spiritKey
+    encounter.spiritName = spiritName
     encounter.location = locData
     encounter.ritualType = ritualType
     encounter.bond = bond or 0
@@ -398,8 +429,9 @@ local function beginSpiritEncounter(spiritKey, spirit, locData, omenKey, omen, r
 
     if not closeEnt or not DoesEntityExist(closeEnt) then
         stopVisionFx()
-        nui('reveal', { key = spiritKey, spirit = spirit, location = locData, omenKey = omenKey, omen = omen, ritualType = ritualType, bond = bond })
+        nui('reveal', { key = spiritKey, spirit = spirit, spirit_name = spiritName, location = locData, omenKey = omenKey, omen = omen, ritualType = ritualType, bond = bond })
         if Config.NUI and Config.NUI.focusOnReveal then setNuiCursor(true) end
+        if spiritName then notify(loc('spirit_name_revealed', { name = spiritName }) or ('The spirits have named you: ' .. spiritName), 'success') end
         SetTimeout(Config.Cinematic.spiritLifetimeMs or 22000, function() cleanupEntities(); closeNui(); resetEncounter() end)
         return
     end
@@ -425,7 +457,15 @@ local function startLocalRitual(ritualType, locData, ritual, cinematic)
     SetEntityHeading(ped, locData.heading or GetEntityHeading(ped))
     spawnRitualProps(locData)
     if cinematic.freezePlayer then FreezeEntityPosition(ped, true) end
-    if cinematic.scenario and cinematic.scenario ~= '' then TaskStartScenarioInPlace(ped, joaat(cinematic.scenario), ritual.durationMs or 30000, true, false, false, false) end
+
+    -- Use per-ritual animation phase sequence (loops until ritual ends)
+    local phases = (Config.RitualAnimations and (Config.RitualAnimations[ritualType] or Config.RitualAnimations.default)) or {}
+    if #phases > 0 then
+        startAnimChain(ped, phases)
+    elseif cinematic.scenario and cinematic.scenario ~= '' then
+        TaskStartScenarioInPlace(ped, joaat(cinematic.scenario), ritual.durationMs or 30000, true, false, false, false)
+    end
+
     startVisionFx()
     nui('begin', { ritual = ritual, location = locData, ritualType = ritualType })
     if Config.NUI and Config.NUI.focusOnBegin then setNuiCursor(true) end
@@ -452,11 +492,24 @@ RegisterNetEvent('lxr-spirits:client:startRitual', function(ritualType, locData,
     startLocalRitual(ritualType, locData, ritual, cinematic or Config.Cinematic)
 end)
 
-RegisterNetEvent('lxr-spirits:client:revealSpirit', function(spiritKey, spirit, locData, omenKey, omen, ritualType, bond)
-    beginSpiritEncounter(spiritKey, spirit, locData, omenKey, omen, ritualType, bond)
+RegisterNetEvent('lxr-spirits:client:revealSpirit', function(spiritKey, spirit, locData, omenKey, omen, ritualType, bond, spiritName)
+    beginSpiritEncounter(spiritKey, spirit, locData, omenKey, omen, ritualType, bond, spiritName)
 end)
 
 RegisterNetEvent('lxr-spirits:client:showProfile', function(profile)
+    if profile then
+        -- Enrich with live config data not stored in DB
+        local sa = Config.SpiritAnimals and Config.SpiritAnimals[profile.spirit]
+        if sa then
+            profile.icon     = sa.icon
+            profile.bondBuff = sa.bondBuff
+        end
+        -- Resolve omen key string → omen object so NUI can render label/text
+        local omenKey = profile.omen
+        if omenKey and type(omenKey) == 'string' then
+            profile.omen = Config.Omens and Config.Omens[omenKey] or nil
+        end
+    end
     nui('profile', profile)
     if not Config.NUI or Config.NUI.focusOnProfile then setNuiCursor(true) end
 end)

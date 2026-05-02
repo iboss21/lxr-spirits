@@ -95,5 +95,7 @@ Config.Locale.en = {
     spirit_omen_message = 'Your spirit guide is the {spirit}. It is coming to you...',
     spirit_approach_message = 'Your spirit guide awaits. Approach and make the connection.',
     bond_complete = 'The bond is complete.',
-    spirit_faded = 'The spirit fades back into the unseen world.'
+    spirit_faded = 'The spirit fades back into the unseen world.',
+    spirit_name_title = 'Spirit Name',
+    spirit_name_revealed = 'The spirits have named you: {name}.'
 }
