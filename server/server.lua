@@ -164,15 +164,16 @@ local function saveProfile(c, data, cb)
         weakness = data.weakness,
         bond = tonumber(data.bond or 0) or 0,
         omen = data.omen,
+        spirit_name = data.spirit_name,
         location_id = data.location_id,
         metadata = encode(data.metadata or {})
     }
     if hasDb() then
         dbUpdate([[INSERT INTO lxr_spirits_profiles
-            (char_key, identifier, citizenid, charid, player_name, spirit, label, title, meaning, element, temperament, weakness, bond, omen, location_id, metadata)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE identifier=VALUES(identifier), citizenid=VALUES(citizenid), charid=VALUES(charid), player_name=VALUES(player_name), spirit=VALUES(spirit), label=VALUES(label), title=VALUES(title), meaning=VALUES(meaning), element=VALUES(element), temperament=VALUES(temperament), weakness=VALUES(weakness), bond=VALUES(bond), omen=VALUES(omen), location_id=VALUES(location_id), metadata=VALUES(metadata), updated_at=CURRENT_TIMESTAMP]],
-            { row.char_key, row.identifier, row.citizenid, row.charid, row.player_name, row.spirit, row.label, row.title, row.meaning, row.element, row.temperament, row.weakness, row.bond, row.omen, row.location_id, row.metadata }, cb)
+            (char_key, identifier, citizenid, charid, player_name, spirit, label, title, meaning, element, temperament, weakness, bond, omen, spirit_name, location_id, metadata)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE identifier=VALUES(identifier), citizenid=VALUES(citizenid), charid=VALUES(charid), player_name=VALUES(player_name), spirit=VALUES(spirit), label=VALUES(label), title=VALUES(title), meaning=VALUES(meaning), element=VALUES(element), temperament=VALUES(temperament), weakness=VALUES(weakness), bond=VALUES(bond), omen=VALUES(omen), spirit_name=VALUES(spirit_name), location_id=VALUES(location_id), metadata=VALUES(metadata), updated_at=CURRENT_TIMESTAMP]],
+            { row.char_key, row.identifier, row.citizenid, row.charid, row.player_name, row.spirit, row.label, row.title, row.meaning, row.element, row.temperament, row.weakness, row.bond, row.omen, row.spirit_name, row.location_id, row.metadata }, cb)
     else
         memoryProfiles[key] = row
         if cb then cb(1) end
@@ -232,6 +233,12 @@ local function hourMultiplier(loc)
     if h >= 20 or h <= 4 then bucket = 'night' elseif h >= 5 and h <= 8 then bucket = 'dawn' elseif h >= 17 and h <= 19 then bucket = 'dusk' end
     if loc.timeBias and loc.timeBias[bucket] then return tonumber(loc.timeBias[bucket]) or 1.0 end
     return 1.0
+end
+
+local function chooseSpiritName(spiritKey)
+    local pool = Config.SpiritNames and Config.SpiritNames[spiritKey]
+    if not pool or #pool == 0 then return nil end
+    return pool[math.random(1, #pool)]
 end
 
 local function chooseSpirit(loc, existing, ritual)
@@ -436,6 +443,8 @@ RegisterNetEvent('lxr-spirits:server:completeRitual', function(ritualType, locat
         local bond = tonumber(existing and existing.bond or 0) or 0
         if ritual.addBond then bond = math.min(100, bond + ritual.addBond) end
         if ritualType == 'initiation' then bond = math.max(bond, 5) end
+        -- Only assign a spirit name on initiation (first bonding) or if none exists yet
+        local spiritName = (existing and existing.spirit_name) or chooseSpiritName(spiritKey)
         local profile = {
             spirit = spiritKey,
             label = spirit.label,
@@ -446,23 +455,31 @@ RegisterNetEvent('lxr-spirits:server:completeRitual', function(ritualType, locat
             weakness = spirit.weakness,
             bond = bond,
             omen = ritual.clearsOmen and nil or omenKey,
+            spirit_name = spiritName,
             location_id = loc.id,
             metadata = { ritual = ritualType, omen = omen, bondBuff = spirit.bondBuff, completedAt = os.date('!%Y-%m-%dT%H:%M:%SZ') }
         }
         if ritual.selectionMode == 'omen_only' and existing then
             profile.spirit, profile.label, profile.title, profile.meaning = existing.spirit, existing.label, existing.title, existing.meaning
             profile.element, profile.temperament, profile.weakness = existing.element, existing.temperament, existing.weakness
+            profile.spirit_name = existing.spirit_name or spiritName
         end
         saveProfile(c, profile)
         setCooldown(c, ritualType, ritual.cooldownSeconds or 1800)
         activeRituals[src] = nil
-        TriggerClientEvent('lxr-spirits:client:revealSpirit', src, spiritKey, spirit, loc, omenKey, omen, ritualType, bond)
+        TriggerClientEvent('lxr-spirits:client:revealSpirit', src, spiritKey, spirit, loc, omenKey, omen, ritualType, bond, profile.spirit_name)
         TriggerEvent('lxr-spirits:server:ritualComplete', src, c, ritualType, spiritKey, profile)
-        logRitual(c, ritualType, locationId, spiritKey, 'completed', { omen = omenKey, bond = bond })
+        logRitual(c, ritualType, locationId, spiritKey, 'completed', { omen = omenKey, bond = bond, spirit_name = profile.spirit_name })
         if Config.General.broadcastResult and not Config.General.revealToPlayerOnly then
             TriggerClientEvent('chat:addMessage', -1, { args = { 'LXR-Spirits', Framework.Locale('broadcast_reveal', { name = c.name, spirit = spirit.label }) } })
         elseif Config.General.witnessBroadcast then
-            TriggerClientEvent('lxr-spirits:client:witnessPulse', -1, GetEntityCoords(GetPlayerPed(src)), c.name, spirit.label)
+            local srcCoords = GetEntityCoords(GetPlayerPed(src))
+            for _, pid in ipairs(GetPlayers()) do
+                local pid = tonumber(pid)
+                if pid ~= src then
+                    TriggerClientEvent('lxr-spirits:client:witnessPulse', pid, srcCoords, c.name, spirit.label)
+                end
+            end
         end
         if Config.Integrations.lxr_reputation.enabled then TriggerEvent(Config.Integrations.lxr_reputation.event, src, Config.Integrations.lxr_reputation.amount) end
         if Config.Integrations.lxr_skills.enabled then TriggerEvent(Config.Integrations.lxr_skills.event, src, Config.Integrations.lxr_skills.skill, Config.Integrations.lxr_skills.amount) end
@@ -547,8 +564,9 @@ RegisterCommand(Config.Commands.admin, function(src, args)
         local spirit = Config.SpiritAnimals[spiritKey or '']
         if not spirit then if src > 0 then Framework.Notify(src, 'Invalid spirit key.', 'error') else print('Invalid spirit key') end return end
         local omenKey, omen = chooseOmen(spirit)
-        saveProfile(c, { spirit = spiritKey, label = spirit.label, title = spirit.title, meaning = spirit.meaning, element = spirit.element, temperament = spirit.temperament, weakness = spirit.weakness, bond = 10, omen = omenKey, location_id = 'admin', metadata = { admin = src, omen = omen } })
-        TriggerClientEvent('lxr-spirits:client:revealSpirit', target, spiritKey, spirit, { id = 'admin', label = 'Admin Vision', coords = GetEntityCoords(GetPlayerPed(target)), heading = 0.0 }, omenKey, omen, 'admin', 10)
+        local spiritName = chooseSpiritName(spiritKey)
+        saveProfile(c, { spirit = spiritKey, label = spirit.label, title = spirit.title, meaning = spirit.meaning, element = spirit.element, temperament = spirit.temperament, weakness = spirit.weakness, bond = 10, omen = omenKey, spirit_name = spiritName, location_id = 'admin', metadata = { admin = src, omen = omen } })
+        TriggerClientEvent('lxr-spirits:client:revealSpirit', target, spiritKey, spirit, { id = 'admin', label = 'Admin Vision', coords = GetEntityCoords(GetPlayerPed(target)), heading = 0.0 }, omenKey, omen, 'admin', 10, spiritName)
         if src > 0 then Framework.Notify(src, 'Spirit assigned.', 'success') end
     elseif action == 'bond' then
         local bond = math.max(0, math.min(100, tonumber(args[3] or 0) or 0))
@@ -564,7 +582,7 @@ RegisterCommand(Config.Commands.admin, function(src, args)
     else
         adminHelp(src)
     end
-end, true)
+end, false)
 
 exports('GetPlayerSpirit', function(src)
     local p = promise.new()

@@ -95,5 +95,7 @@ Config.Locale.ka = {
     spirit_omen_message = 'შენი სულიერი მეგზური არის {spirit}. ის შენთან მოდის...',
     spirit_approach_message = 'შენი სულიერი მეგზური გელოდება. მიუახლოვდი და დაამყარე კავშირი.',
     bond_complete = 'კავშირი დასრულებულია.',
-    spirit_faded = 'სული უხილავ სამყაროში ბრუნდება.'
+    spirit_faded = 'სული უხილავ სამყაროში ბრუნდება.',
+    spirit_name_title = 'სულის სახელი',
+    spirit_name_revealed = 'სულებმა შეგარქვეს: {name}.'
 }

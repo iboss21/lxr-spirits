@@ -4,6 +4,9 @@
 -- Resource identity locked to: lxr-spirits
 -- ═══════════════════════════════════════════════════════════════════════════════
 
+-- Migration for existing installations (run once if upgrading from v1.3.x or earlier):
+-- ALTER TABLE `lxr_spirits_profiles` ADD COLUMN `spirit_name` VARCHAR(120) DEFAULT NULL AFTER `omen`;
+
 CREATE TABLE IF NOT EXISTS `lxr_spirits_profiles` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `char_key` VARCHAR(96) NOT NULL,
@@ -20,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `lxr_spirits_profiles` (
   `weakness` VARCHAR(255) DEFAULT NULL,
   `bond` INT NOT NULL DEFAULT 0,
   `omen` VARCHAR(80) DEFAULT NULL,
+  `spirit_name` VARCHAR(120) DEFAULT NULL,
   `location_id` VARCHAR(96) DEFAULT NULL,
   `metadata` LONGTEXT DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
