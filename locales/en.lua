@@ -71,6 +71,7 @@ Config.Locale.en = {
     ritual_cancelled = 'The ritual was broken.',
     too_far = 'You moved too far from the sacred ground.',
     not_allowed = 'You are not permitted to perform this ritual here.',
+    native_job_required = 'This ritual is sacred — only those of native blood may perform it here.',
     missing_item = 'You lack the required offering. Bring one of these: {item}.',
     cooldown_active = 'The spirits are silent. Wait before attempting this again.',
     already_has_spirit = 'Your soul already carries a spirit guide.',
