@@ -281,8 +281,16 @@ end
 
 local function jobAllowed(src, loc)
     if not Config.Security.validateJobAccess then return true end
-    if not loc.jobs or type(loc.jobs) ~= 'table' then return true end
     local job, grade = Framework.GetJob(src)
+    -- Global native job restriction: when enabled, ALL locations require the player to hold
+    -- one of the configured native jobs regardless of the location's own jobs table.
+    if Config.Security.nativeJobRequired and Config.Security.nativeJobs then
+        local req = Config.Security.nativeJobs[job]
+        if req == nil or tonumber(grade or 0) < tonumber(req or 0) then
+            return false
+        end
+    end
+    if not loc.jobs or type(loc.jobs) ~= 'table' then return true end
     local req = loc.jobs[job]
     return req ~= nil and tonumber(grade or 0) >= tonumber(req or 0)
 end

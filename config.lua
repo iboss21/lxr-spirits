@@ -149,7 +149,14 @@ Config.Security = {
     maxActiveRitualSecondsBuffer = 45,
     suspiciousLog = true,
     kickOnExploit = false,
-    adminAces = { 'command', 'lxr.admin', 'lxr.spirits.admin' }
+    adminAces = { 'command', 'lxr.admin', 'lxr.spirits.admin' },
+
+    -- Restrict ALL rituals and offerings to players with a specific job.
+    -- Set nativeJobRequired = true to enable, then list the allowed jobs and the
+    -- minimum grade required in nativeJobs (grade 0 = any grade accepted).
+    -- Example: nativeJobs = { native = 0, shaman = 1 }
+    nativeJobRequired = false,
+    nativeJobs = { native = 0 }
 }
 
 Config.Performance = {
@@ -480,22 +487,93 @@ Config.Omens = {
     broken_ring = { label = 'Broken Ring', tone = 'warning', text = 'A bond may break unless guarded.', weight = 8 }
 }
 
--- Spirit names given to the player upon bonding. One is chosen at random from the pool.
--- Format is intentionally evocative — short, mythic, hunt-earned titles.
+-- Spirit names given to the player upon bonding. One is chosen at random per animal pool.
+-- Names follow Native American naming tradition: the spirit animal's name is woven into
+-- the player's name so every title is clearly tied to its totem (e.g. "Running Wolf",
+-- "Greywolf", "Thunder Eagle").  Pools are intentionally large so no two players share
+-- the same name too often.
 Config.SpiritNames = {
-    wolf        = { 'Eyes of the Wolf', 'Moon Walker', 'Iron Fangs', 'Pack Blood', 'Howling Shadow', 'Spirit of the Hunt', 'Moonlit Hunter', 'Night Howl' },
-    eagle       = { 'Sky Watcher', 'Storm Wing', 'Piercing Eye', 'Cloud Dancer', 'Sun Hunter', 'Wind Rider', 'High Feather', 'Thunder Talon' },
-    bear        = { 'Iron Hide', 'Ancient Paw', 'Stone Heart', 'Forest Warden', 'Thunder Walk', 'Sacred Claw', 'Old Bear', 'Earth Shaker' },
-    cougar      = { 'Shadow Step', 'Silent Fang', 'Pale Strike', 'Night Stalker', 'Ghost Claw', 'Dusk Hunter', 'Swift Shadow', 'Bone Cutter' },
-    fox         = { 'Ember Tongue', 'Red Whisper', 'Cunning Wind', 'Quick Mind', 'Dust Walker', 'Trickster Flame', 'Clever Paw', 'Fire Runner' },
-    raven       = { 'Death Tongue', 'Black Wing', 'Memory Keeper', 'Omen Caller', 'Dark Prophet', 'Bone Seer', 'Silent Omen', 'Raven Blood' },
-    elk         = { 'Crown Wander', 'Pine Blood', 'Noble Step', 'Long Road', 'Old Antler', 'Silent Meadow', 'Forest King', 'Proud Rack' },
-    bison       = { 'Thunder Plain', 'Earth Shaker', 'Storm Runner', 'Ancient Ground', 'Dust Thunder', 'Iron Herd', 'Sacred Plain', 'Old Bull' },
-    coyote      = { 'Laughing Dust', 'Wild Fortune', 'Desert Runner', 'Sand Trickster', 'Broken Trail', 'Red Coyote', 'Hungry Howl', 'Ragged Wind' },
-    owl         = { 'Night Judge', 'Moon Eyes', 'Silent Wing', 'Dark Wisdom', 'Hollow Call', 'Ancient Stare', 'Feather Dark', 'Quiet Oracle' },
-    white_deer  = { 'Pale Path', 'Mist Walker', 'Ghost Deer', 'Sacred Trace', 'Pure Step', 'Light Messenger', 'White Trail', 'Soft Hoof' },
-    great_bison = { 'Ancient Thunder', 'Earth Burden', 'Stone Herd', 'Timeless Ground', 'Old Thunder', 'Sacred Plain', 'Heavy Step', 'Iron Wall' },
-    omen_wolf   = { 'Moon Scar', 'Exile Pack', 'Haunted Fang', 'Old Wound', 'Shadow Howl', 'Scarred Moon', 'Marked Fang', 'Lost Pack' }
+    wolf = {
+        'Running Wolf',   'Grey Wolf',      'Iron Wolf',       'Moon Wolf',
+        'Shadow Wolf',    'Storm Wolf',      'White Wolf',      'Howling Wolf',
+        'Lone Wolf',      'Dark Wolf',       'Swift Wolf',      'Red Wolf',
+        'Black Wolf',     'Wild Wolf',       'Midnight Wolf',   'Brave Wolf',
+        'Greywolf',       'Ironwolf',        'Moonwolf',        'Bloodwolf'
+    },
+    eagle = {
+        'Soaring Eagle',  'Thunder Eagle',   'Sky Eagle',       'Storm Eagle',
+        'Sun Eagle',      'Sharp Eagle',     'Wind Eagle',      'Golden Eagle',
+        'Swift Eagle',    'High Eagle',      'Dawn Eagle',      'Fire Eagle',
+        'Brave Eagle',    'Iron Eagle',      'Cloud Eagle',     'Silent Eagle',
+        'Swifteagle',     'Thundereagle',    'Skyeagle',        'Stormeagle'
+    },
+    bear = {
+        'Iron Bear',      'Dark Bear',       'Stone Bear',      'Thunder Bear',
+        'Great Bear',     'Black Bear',      'Walking Bear',    'Running Bear',
+        'Old Bear',       'Strong Bear',     'Brave Bear',      'Grizzled Bear',
+        'Sacred Bear',    'Sleeping Bear',   'Angry Bear',      'Mountain Bear',
+        'Ironbear',       'Stonebear',       'Thunderbear',     'Blackbear'
+    },
+    cougar = {
+        'Swift Cougar',   'Shadow Cougar',   'Silent Cougar',   'Night Cougar',
+        'Dark Cougar',    'Ghost Cougar',    'Pale Cougar',     'Hungry Cougar',
+        'Lone Cougar',    'Fire Cougar',     'Dusk Cougar',     'Stalking Cougar',
+        'Swiftcougar',    'Ghostcougar',     'Silentcougar',    'Nightcougar'
+    },
+    fox = {
+        'Red Fox',        'Clever Fox',      'Swift Fox',       'Fire Fox',
+        'Ember Fox',      'Desert Fox',      'Cunning Fox',     'Wise Fox',
+        'Running Fox',    'Silent Fox',      'Dust Fox',        'Flame Fox',
+        'Redfox',         'Emberfox',        'Swiftfox',        'Firefox'
+    },
+    raven = {
+        'Black Raven',    'Dark Raven',      'Old Raven',       'Blood Raven',
+        'Storm Raven',    'Night Raven',     'Cold Raven',      'Wise Raven',
+        'Screaming Raven','Silent Raven',    'Bone Raven',      'Hollow Raven',
+        'Blackraven',     'Stormraven',      'Nightraven',      'Bloodraven'
+    },
+    elk = {
+        'Crown Elk',      'Noble Elk',       'Pine Elk',        'Forest Elk',
+        'Great Elk',      'Old Elk',         'Swift Elk',       'Mighty Elk',
+        'Sacred Elk',     'Standing Elk',    'Dark Elk',        'Mountain Elk',
+        'Crownelk',       'Nobleelk',        'Greatelk',        'Sacredelk'
+    },
+    bison = {
+        'Thunder Bison',  'Great Bison',     'Iron Bison',      'Storm Bison',
+        'Sacred Bison',   'Old Bison',       'Running Bison',   'Black Bison',
+        'Mountain Bison', 'Heavy Bison',     'Dark Bison',      'Brave Bison',
+        'Thunderbison',   'Ironbison',       'Stormbison',      'Sacredbison'
+    },
+    coyote = {
+        'Desert Coyote',  'Red Coyote',      'Sand Coyote',     'Wild Coyote',
+        'Hungry Coyote',  'Laughing Coyote', 'Lone Coyote',     'Swift Coyote',
+        'Twisted Coyote', 'Ragged Coyote',   'Dust Coyote',     'Night Coyote',
+        'Redcoyote',      'Desertcoyote',    'Wildcoyote',      'Sandcoyote'
+    },
+    owl = {
+        'Night Owl',      'Silent Owl',      'Wise Owl',        'Dark Owl',
+        'Moon Owl',       'Old Owl',         'Sacred Owl',      'Hollow Owl',
+        'Shadow Owl',     'Blind Owl',       'Storm Owl',       'Ancient Owl',
+        'Nightowl',       'Silentowl',       'Moonowl',         'Wiseowl'
+    },
+    white_deer = {
+        'White Deer',     'Pale Deer',       'Mist Deer',       'Ghost Deer',
+        'Sacred Deer',    'Pure Deer',       'Running Deer',    'Soft Deer',
+        'Spirit Deer',    'Light Deer',      'Silent Deer',     'Dawn Deer',
+        'Whitedeer',      'Ghostdeer',       'Sacredeer',       'Paledeer'
+    },
+    great_bison = {
+        'Ancient Bison',  'Sacred Bison',    'Earth Bison',     'Great Bull',
+        'Iron Bull',      'Stone Bison',     'Thunder Bull',    'Old Bull',
+        'Mountain Bull',  'Dark Bull',       'Sacred Bull',     'Mighty Bull',
+        'Ancientbison',   'Ironbull',        'Thunderbull',     'Sacredbull'
+    },
+    omen_wolf = {
+        'Scarred Wolf',   'Exile Wolf',      'Haunted Wolf',    'Wounded Wolf',
+        'Blood Moon Wolf','Banished Wolf',   'Lost Wolf',       'Marked Wolf',
+        'Moon Scar Wolf', 'Dark Omen Wolf',  'Shadow Moon Wolf','Broken Wolf',
+        'Scarredwolf',    'Exilewolf',       'Hauntedwolf',     'Markedwolf'
+    }
 }
 
 Config.SpiritAnimals = {
